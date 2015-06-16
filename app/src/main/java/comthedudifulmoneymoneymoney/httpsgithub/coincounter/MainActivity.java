@@ -3,6 +3,8 @@ package comthedudifulmoneymoneymoney.httpsgithub.coincounter;
 import java.io.File;
 import java.io.IOException;
 
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +23,7 @@ import android.widget.ImageView;
 public class MainActivity extends ActionBarActivity {
 
     private static final int CAMERA_REQUEST = 1888;
+    private static int RESULT_LOAD_IMAGE = 1;
     private ImageView view;
     private Uri imageUri;
 
@@ -30,6 +33,20 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         this.view = (ImageView) this.findViewById(R.id.image_view);
+
+        Button buttonLoadImage = (Button) findViewById(R.id.image_button);
+        buttonLoadImage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+
+                Intent i = new Intent(
+                        Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
+            }
+        });
 
         Button cameraButton = (Button) this.findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -52,6 +69,21 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            view.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+        }
+
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             try {
                 Bitmap image = MediaStore.Images.Media.getBitmap(
