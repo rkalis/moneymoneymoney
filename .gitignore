@@ -13,6 +13,8 @@ bin/
 gen/
 
 # Gradle files
+gradlew
+gradle/
 .gradle/
 build/
 /*/build/
