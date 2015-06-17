@@ -81,7 +81,15 @@ public class MainActivity extends ActionBarActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            view.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            int picw = BitmapFactory.decodeFile(picturePath).getWidth();
+            int pich = BitmapFactory.decodeFile(picturePath).getHeight();
+
+            int[] pix = new int[picw * pich];
+            BitmapFactory.decodeFile(picturePath).getPixels(pix, 0, picw, 0, 0, picw, pich);
+
+            Bitmap image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+
+            view.setImageBitmap(image2);
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
@@ -92,13 +100,10 @@ public class MainActivity extends ActionBarActivity {
 
                 int picw = image.getWidth();
                 int pich = image.getHeight();
-
                 int[] pix = new int[picw * pich];
+
                 image.getPixels(pix, 0, picw, 0, 0, picw, pich);
-
                 image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
-
-
                 this.view.setImageBitmap(image);
             } catch(IOException e) {
             }
