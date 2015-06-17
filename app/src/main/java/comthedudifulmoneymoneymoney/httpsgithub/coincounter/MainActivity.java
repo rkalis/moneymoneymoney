@@ -89,7 +89,16 @@ public class MainActivity extends ActionBarActivity {
                 Bitmap image = MediaStore.Images.Media.getBitmap(
                         this.getContentResolver(),
                         MainActivity.this.imageUri);
-                this.view.setImageBitmap(image);
+
+                int picw = image.getWidth();
+                int pich = image.getHeight();
+
+                int[] pix = new int[picw * pich];
+                image.getPixels(pix, 0, picw, 0, 0, picw, pich);
+
+                Bitmap image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+
+                this.view.setImageBitmap(image2);
             } catch(IOException e) {
             }
         }
