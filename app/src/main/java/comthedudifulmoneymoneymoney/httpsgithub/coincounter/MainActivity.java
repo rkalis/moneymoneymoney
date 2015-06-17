@@ -98,6 +98,7 @@ public class MainActivity extends ActionBarActivity {
 
                 Bitmap image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
+
                 this.view.setImageBitmap(image2);
             } catch(IOException e) {
             }
