@@ -114,23 +114,17 @@ public class MainActivity extends ActionBarActivity {
 
                 // Circle Detection
                 int[] process = pix.clone();
-                //int[] process = pix;
                 circleHough test = new circleHough();
                 test.init(process, picw, pich, 200);
-                //circleHough test = new circleHough();
-                //test.init(pix, picw, pich, 75);
                 process = test.process();
 
-                //process = test.process();
-
-            /*for(int i = 0; i < process.length; i++) {
-                //process[i] = process[i] | (0x00 << 24 | (datar[i] << 16) | (datag[i] << 8) | datab[i]);
+            // Draw both the image and the circles
+            for(int i = 0; i < process.length; i++) {
                 pix[i] = (0xFF << 24) | (((Color.red(process[i])) | (Color.red(pix[i]))) << 16) |
                         (((Color.green(process[i])) | (Color.green(pix[i]))) << 8) |
                         (((Color.blue(process[i])) | (Color.blue(pix[i]))));
-            } */
-
-                this.view.setImageBitmap(Bitmap.createBitmap(process, picw, pich, Bitmap.Config.ARGB_8888));
+            }
+                this.view.setImageBitmap(Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888));
             } catch(IOException e) {
             }
         }
