@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,12 +28,21 @@ public class MainActivity extends ActionBarActivity {
     private ImageView view;
     private Uri imageUri;
 
+    private Bitmap image2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         this.view = (ImageView) this.findViewById(R.id.image_view);
+
+        if (savedInstanceState != null) {
+            image2 = savedInstanceState.getParcelable("bitmap");
+            view.setImageBitmap(image2);
+        }
 
         Button buttonLoadImage = (Button) findViewById(R.id.image_button);
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
             int[] pix = new int[picw * pich];
             BitmapFactory.decodeFile(picturePath).getPixels(pix, 0, picw, 0, 0, picw, pich);
 
-            Bitmap image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+            image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
             view.setImageBitmap(image2);
         }
@@ -102,6 +112,10 @@ public class MainActivity extends ActionBarActivity {
             } catch(IOException e) {
             }
         }
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("bitmap", image2);
     }
 
     @Override
