@@ -162,8 +162,20 @@ public class MainActivity extends ActionBarActivity {
             Point center = new Point();
             center.x = circle[0];
             center.y = circle[1];
-            Core.circle(imgMat, center, 3,new Scalar(255,255,255), -1, 8, 0 );
-            Core.circle( imgMat, center, (int)circle[2], new Scalar(0,0,255), 3, 8, 0 );
+            //Core.circle(imgMat, center, 3,new Scalar(255,255,255), -1, 8, 0 );
+            if ((int)circle[2] > 180)
+            Core.putText(imgMat, "2 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            else if ((int)circle[2] > 170)
+                Core.putText(imgMat, "1 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            else if ((int)circle[2] > 160)
+                Core.putText(imgMat, "20 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            else if ((int)circle[2] > 157)
+                Core.putText(imgMat, "50 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            else if ((int)circle[2] > 140)
+                Core.putText(imgMat, "5 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            else if ((int)circle[2] > 130)
+                Core.putText(imgMat, "10 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+            Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
             coins[i] = (int) circle[2];
         }
         bmp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
