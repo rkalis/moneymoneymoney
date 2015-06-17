@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.util.Log;
+import android.widget.TextView;
 
 import static org.opencv.imgproc.Imgproc.medianBlur;
 
@@ -42,7 +43,8 @@ public class MainActivity extends ActionBarActivity {
     private ImageView view;
     private Uri imageUri;
     private Bitmap bmp;
-
+    private TextView text;
+    private int[] coins = new int[50];
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -68,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
             this.loadButtons();
         }
         this.view = (ImageView) this.findViewById(R.id.image_view);
+        this.text = (TextView) this.findViewById(R.id.testText);
 
         if (savedInstanceState != null) {
             bmp = savedInstanceState.getParcelable("bitmap");
@@ -159,11 +162,22 @@ public class MainActivity extends ActionBarActivity {
             Point center = new Point();
             center.x = circle[0];
             center.y = circle[1];
-            Core.circle(imgMat, center, (int) circle[2], new Scalar(255,255,0,0), 10);
+            Core.circle(imgMat, center, 3,new Scalar(255,255,255), -1, 8, 0 );
+            Core.circle( imgMat, center, (int)circle[2], new Scalar(0,0,255), 3, 8, 0 );
+            coins[i] = (int) circle[2];
         }
         bmp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(imgMat, bmp);
         this.view.setImageBitmap(bmp);
+
+        String textc = "";
+
+        for (int i = 0; i < coins.length; i++){
+            if (coins[i] != 0){
+                textc += " " + coins[i];
+            }
+        }
+        this.text.setText(textc);
     }
 
     public void onSaveInstanceState(Bundle outState) {
