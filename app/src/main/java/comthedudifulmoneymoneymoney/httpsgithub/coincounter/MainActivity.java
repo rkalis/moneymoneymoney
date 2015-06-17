@@ -28,7 +28,7 @@ public class MainActivity extends ActionBarActivity {
     private ImageView view;
     private Uri imageUri;
 
-    private Bitmap image2;
+    private Bitmap image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +40,8 @@ public class MainActivity extends ActionBarActivity {
         this.view = (ImageView) this.findViewById(R.id.image_view);
 
         if (savedInstanceState != null) {
-            image2 = savedInstanceState.getParcelable("bitmap");
-            view.setImageBitmap(image2);
+            image = savedInstanceState.getParcelable("bitmap");
+            view.setImageBitmap(image);
         }
 
         Button buttonLoadImage = (Button) findViewById(R.id.image_button);
@@ -97,9 +97,9 @@ public class MainActivity extends ActionBarActivity {
             int[] pix = new int[picw * pich];
             BitmapFactory.decodeFile(picturePath).getPixels(pix, 0, picw, 0, 0, picw, pich);
 
-            image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+            image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
-            view.setImageBitmap(image2);
+            view.setImageBitmap(image);
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
@@ -121,7 +121,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("bitmap", image2);
+        outState.putParcelable("bitmap", image);
     }
 
     @Override
