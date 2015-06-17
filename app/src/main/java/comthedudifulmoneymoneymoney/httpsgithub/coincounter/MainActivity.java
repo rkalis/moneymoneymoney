@@ -103,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             try {
-                Bitmap image = MediaStore.Images.Media.getBitmap(
+                image = MediaStore.Images.Media.getBitmap(
                         this.getContentResolver(),
                         MainActivity.this.imageUri);
 
