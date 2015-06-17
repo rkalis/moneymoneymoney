@@ -42,7 +42,7 @@ public class MainActivity extends ActionBarActivity {
 
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
                 startActivityForResult(i, RESULT_LOAD_IMAGE);
             }
@@ -96,10 +96,10 @@ public class MainActivity extends ActionBarActivity {
                 int[] pix = new int[picw * pich];
                 image.getPixels(pix, 0, picw, 0, 0, picw, pich);
 
-                Bitmap image2 = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+                image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
 
-                this.view.setImageBitmap(image2);
+                this.view.setImageBitmap(image);
             } catch(IOException e) {
             }
         }
