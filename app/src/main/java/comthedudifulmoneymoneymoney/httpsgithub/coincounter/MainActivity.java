@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -97,9 +98,7 @@ public class MainActivity extends ActionBarActivity {
             int[] pix = new int[picw * pich];
             BitmapFactory.decodeFile(picturePath).getPixels(pix, 0, picw, 0, 0, picw, pich);
 
-            image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
-
-            view.setImageBitmap(image);
+            view.setImageBitmap(Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888));
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
@@ -111,10 +110,27 @@ public class MainActivity extends ActionBarActivity {
                 int picw = image.getWidth();
                 int pich = image.getHeight();
                 int[] pix = new int[picw * pich];
-
                 image.getPixels(pix, 0, picw, 0, 0, picw, pich);
-                image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
-                this.view.setImageBitmap(image);
+
+                // Circle Detection
+                int[] process = pix.clone();
+                //int[] process = pix;
+                circleHough test = new circleHough();
+                test.init(process, picw, pich, 200);
+                //circleHough test = new circleHough();
+                //test.init(pix, picw, pich, 75);
+                process = test.process();
+
+                //process = test.process();
+
+            /*for(int i = 0; i < process.length; i++) {
+                //process[i] = process[i] | (0x00 << 24 | (datar[i] << 16) | (datag[i] << 8) | datab[i]);
+                pix[i] = (0xFF << 24) | (((Color.red(process[i])) | (Color.red(pix[i]))) << 16) |
+                        (((Color.green(process[i])) | (Color.green(pix[i]))) << 8) |
+                        (((Color.blue(process[i])) | (Color.blue(pix[i]))));
+            } */
+
+                this.view.setImageBitmap(Bitmap.createBitmap(process, picw, pich, Bitmap.Config.ARGB_8888));
             } catch(IOException e) {
             }
         }
