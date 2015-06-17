@@ -31,6 +31,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.util.Log;
 
+import static org.opencv.imgproc.Imgproc.medianBlur;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -39,6 +41,7 @@ public class MainActivity extends ActionBarActivity {
     private static int RESULT_LOAD_IMAGE = 1;
     private ImageView view;
     private Uri imageUri;
+    private Bitmap bmp;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -65,6 +68,11 @@ public class MainActivity extends ActionBarActivity {
             this.loadButtons();
         }
         this.view = (ImageView) this.findViewById(R.id.image_view);
+
+        if (savedInstanceState != null) {
+            bmp = savedInstanceState.getParcelable("bitmap");
+            view.setImageBitmap(bmp);
+        }
     }
 
     private void loadButtons() {
@@ -131,12 +139,6 @@ public class MainActivity extends ActionBarActivity {
 
     // view this bitmap in the view
     private void viewBitmap(Bitmap image) {
-        int picw = image.getWidth();
-        int pich = image.getHeight();
-        int[] pix = new int[picw * pich];
-
-        image.getPixels(pix, 0, picw, 0, 0, picw, pich);
-        image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
         Mat imgMat = new Mat();
         Mat imgCircles = new Mat();
@@ -144,11 +146,12 @@ public class MainActivity extends ActionBarActivity {
         // convert image to greyscale
         Imgproc.cvtColor(imgMat, imgMat, Imgproc.COLOR_BGR2GRAY);
         // blur image
-        //Imgproc.GaussianBlur(imgMat, imgMat, new Size(9, 9), 2, 2);
+        medianBlur(imgMat, imgMat, 5);
         // detect circles
-        Imgproc.HoughCircles(imgMat, imgCircles, Imgproc.CV_HOUGH_GRADIENT, 1, imgMat.rows()/16, 200, 50, 0, 0);
+        Imgproc.HoughCircles(imgMat, imgCircles, Imgproc.CV_HOUGH_GRADIENT, 1, imgMat.rows()/8, 100, 50, 100, 0);
 
         Log.d(TAG, "circles detected: " + imgCircles.cols());
+        Utils.bitmapToMat(image, imgMat);
 
         float[] circle = new float[3];
         for (int i = 0; i < imgCircles.cols(); i++) {
@@ -158,9 +161,13 @@ public class MainActivity extends ActionBarActivity {
             center.y = circle[1];
             Core.circle(imgMat, center, (int) circle[2], new Scalar(255,255,0,0), 10);
         }
-        Bitmap bmp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        bmp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(imgMat, bmp);
         this.view.setImageBitmap(bmp);
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("bitmap", bmp);
     }
 
     @Override
