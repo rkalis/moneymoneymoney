@@ -20,13 +20,17 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import comthedudifulmoneymoneymoney.httpsgithub.coincounter.CameraImageSource;
+
 
 public class MainActivity extends ActionBarActivity {
 
     private static final int CAMERA_REQUEST = 1888;
     private static int RESULT_LOAD_IMAGE = 1;
-    private ImageView view;
+    private ImageDisplayView view;
     private Uri imageUri;
+
+    private CameraImageSource cis;
 
     private Bitmap image;
 
@@ -35,13 +39,12 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.cis = new CameraImageSource(this);
 
-
-        this.view = (ImageView) this.findViewById(R.id.image_view);
-
+        this.view = (ImageDisplayView) this.findViewById(R.id.image_display_view);
         if (savedInstanceState != null) {
             image = savedInstanceState.getParcelable("bitmap");
-            view.setImageBitmap(image);
+            view.onImage(image);
         }
 
         Button buttonLoadImage = (Button) findViewById(R.id.image_button);
@@ -70,10 +73,11 @@ public class MainActivity extends ActionBarActivity {
                     return;
                 }
 
-                MainActivity.this.imageUri = Uri.fromFile(storageDir);
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, MainActivity.this.imageUri);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                /* Set camera as active source: */
+                ImageDisplayView idv = (ImageDisplayView)findViewById(R.id.image_display_view);
+                if (idv.getImageSource() != MainActivity.this.cis) {
+                    idv.setImageSource(MainActivity.this.cis);
+                }
             }
         });
     }
@@ -99,24 +103,25 @@ public class MainActivity extends ActionBarActivity {
 
             image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
 
-            view.setImageBitmap(image);
+            view.onImage(image);
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            try {
-                image = MediaStore.Images.Media.getBitmap(
-                        this.getContentResolver(),
-                        MainActivity.this.imageUri);
-
-                int picw = image.getWidth();
-                int pich = image.getHeight();
-                int[] pix = new int[picw * pich];
-
-                image.getPixels(pix, 0, picw, 0, 0, picw, pich);
-                image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
-                this.view.setImageBitmap(image);
-            } catch(IOException e) {
-            }
+//            try {
+//                image = MediaStore.Images.Media.getBitmap(
+//                        this.getContentResolver(),
+//                        MainActivity.this.imageUri);
+//
+//                int picw = image.getWidth();
+//                int pich = image.getHeight();
+//                int[] pix = new int[picw * pich];
+//
+//                image.getPixels(pix, 0, picw, 0, 0, picw, pich);
+//                image = Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888);
+//                this.view.setImageBitmap(image);
+//            } catch(IOException e) {
+//            }
+            view.setImageSource(cis);
         }
     }
 
