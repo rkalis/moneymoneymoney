@@ -16,6 +16,7 @@ import org.opencv.android.Utils;
 
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,13 +35,15 @@ import android.widget.TextView;
 
 import static org.opencv.imgproc.Imgproc.medianBlur;
 
+import comthedudifulmoneymoneymoney.httpsgithub.coincounter.CameraImageSource;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends ActionBarActivity implements ImageListener{
 
     private static final String TAG = "MainActivity";
     private static final int CAMERA_REQUEST = 1888;
     private static int RESULT_LOAD_IMAGE = 1;
-    private ImageView view;
+    private ImageDisplayView view;
     private Uri imageUri;
     private Bitmap bmp;
     private TextView text;
@@ -60,21 +63,29 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    private CameraImageSource cis;
+
+    private Bitmap image;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.cis = new CameraImageSource(this);
+
+        this.text = (TextView) this.findViewById(R.id.testText);
+        this.view = (ImageDisplayView) this.findViewById(R.id.image_display_view);
+
         if (!OpenCVLoader.initDebug()) {
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_9, this, mLoaderCallback);
         } else {
             this.loadButtons();
         }
-        this.view = (ImageView) this.findViewById(R.id.image_view);
-        this.text = (TextView) this.findViewById(R.id.testText);
 
         if (savedInstanceState != null) {
-            bmp = savedInstanceState.getParcelable("bitmap");
-            view.setImageBitmap(bmp);
+            image = savedInstanceState.getParcelable("bitmap");
+            view.onImage(image);
         }
     }
 
@@ -104,10 +115,11 @@ public class MainActivity extends ActionBarActivity {
                     return;
                 }
 
-                MainActivity.this.imageUri = Uri.fromFile(storageDir);
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, MainActivity.this.imageUri);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                /* Set camera as active source: */
+                ImageDisplayView idv = (ImageDisplayView)findViewById(R.id.image_display_view);
+                if (idv.getImageSource() != MainActivity.this.cis) {
+                    idv.setImageSource(MainActivity.this.cis);
+                }
             }
         });
     }
@@ -127,21 +139,16 @@ public class MainActivity extends ActionBarActivity {
             cursor.close();
 
             image = BitmapFactory.decodeFile(picturePath);
-            this.viewBitmap(image);
+            this.onImage(image);
         } else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            try {
-                image = MediaStore.Images.Media.getBitmap(
-                        this.getContentResolver(),
-                        MainActivity.this.imageUri);
-                this.viewBitmap(image);
-            } catch(IOException e) {
-            }
+            cis.setOnImageListener(this);
         }
 
     }
 
     // view this bitmap in the view
-    private void viewBitmap(Bitmap image) {
+    @Override
+    public void onImage(Bitmap image) {
 
         Mat imgMat = new Mat();
         Mat imgCircles = new Mat();
@@ -178,9 +185,9 @@ public class MainActivity extends ActionBarActivity {
             Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
             coins[i] = (int) circle[2];
         }
-        bmp = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(imgMat, bmp);
-        this.view.setImageBitmap(bmp);
+        image = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(imgMat, image);
+        this.view.onImage(image);
 
         String textc = "";
 
@@ -193,7 +200,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("bitmap", bmp);
+        outState.putParcelable("bitmap", image);
     }
 
     @Override
