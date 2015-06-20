@@ -38,7 +38,7 @@ import static org.opencv.imgproc.Imgproc.medianBlur;
 import comthedudifulmoneymoneymoney.httpsgithub.coincounter.CameraImageSource;
 
 
-public class MainActivity extends ActionBarActivity implements ImageListener{
+public class MainActivity extends ActionBarActivity{
 
     private static final String TAG = "MainActivity";
     private static final int CAMERA_REQUEST = 1888;
@@ -138,30 +138,11 @@ public class MainActivity extends ActionBarActivity implements ImageListener{
             cursor.close();
 
             image = BitmapFactory.decodeFile(picturePath);
-            this.onImage(image);
+            view.onImage(image);
         } else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            cis.setOnImageListener(this);
+            cis.setOnImageListener(view);
         }
 
-    }
-
-    // view this bitmap in the view
-    @Override
-    public void onImage(Bitmap image) {
-
-        CircleDetection CD = new CircleDetection(image);
-        CD.DetectCircles();
-        image = CD.image;
-        this.view.onImage(image);
-
-        /*String textc = "";
-
-        for (int i = 0; i < coins.length; i++){
-            if (coins[i] != 0){
-                textc += " " + coins[i];
-            }
-        }
-        this.text.setText(textc); */
     }
 
     public void onSaveInstanceState(Bundle outState) {

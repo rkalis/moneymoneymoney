@@ -46,10 +46,13 @@ public class ImageDisplayView extends View implements ImageListener {
         /* When we recieve an image, simply store it and invalidate the View so it will be
          * redrawn. */
         Matrix matrix = new Matrix();
-
         matrix.postRotate(90);
-
         this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
+
+        CircleDetection CD = new CircleDetection(this.currentImage);
+        CD.DetectCircles();
+        this.currentImage = CD.image;
+
         this.invalidate();
     }
 
@@ -59,9 +62,6 @@ public class ImageDisplayView extends View implements ImageListener {
 
         /* If there is an image to be drawn: */
         if (this.currentImage != null) {
-            CircleDetection CD = new CircleDetection(this.currentImage);
-            CD.DetectCircles();
-            this.currentImage = CD.image;
             canvas.drawBitmap(this.currentImage, 0, 0, null);
         }
     }
