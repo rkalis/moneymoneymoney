@@ -51,6 +51,9 @@ public class ImageDisplayView extends View implements ImageListener {
 
         CircleDetection CD = new CircleDetection(this.currentImage);
         CD.DetectCircles();
+        CD.ValueCircles_by_radius();
+        CD.Totaal();
+        CD.DrawCircles();
         this.currentImage = CD.image;
 
         this.invalidate();
