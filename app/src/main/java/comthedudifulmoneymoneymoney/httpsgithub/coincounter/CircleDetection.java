@@ -1,6 +1,7 @@
 package comthedudifulmoneymoneymoney.httpsgithub.coincounter;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -18,9 +19,64 @@ import static org.opencv.imgproc.Imgproc.medianBlur;
  */
 public class CircleDetection {
 
+    private static final String TAG = "CD";
+
     // Fields
+
+    // Ingelade Bitmap
     Bitmap image;
-    int[] Coins = new int[100];
+
+    // Array met gedetecteerde cirkels
+    float[][] circles;
+
+    // Geldwaarde per circle
+    float[] circle_value;
+
+    // Totaal waarde munten
+    double totaal = 0;
+
+    // Vaste Verhoudingen tussen diameters van munten/5ct/10ct/20ct/50ct/1e/2e
+    final double[] vijfcent = {1.0,
+            1.07594936709,
+            0.955056179775,
+            0.876288659794,
+            0.913978494624,
+            0.825242718447,};
+
+    final double[] tiencent = {0.929411764706,
+            1.0,
+            0.887640449438,
+            0.814432989691,
+            0.849462365591,
+            0.766990291262};
+
+    final double[] twintigcent = {1.04705882353,
+            1.12658227848,
+            1.0,
+            0.917525773196,
+            0.956989247312,
+            0.864077669903};
+
+    final double[] vijftigcent = {1.14117647059,
+            1.22784810127,
+            1.08988764045,
+            1.0,
+            1.04301075269,
+            0.941747572816};
+
+    final double[] euro = {1.09411764706,
+            1.17721518987,
+            1.04494382022,
+            0.958762886598,
+            1.0,
+            0.902912621359};
+
+    final double[] tweeeuro = {1.21176470588,
+            1.30379746835,
+            1.15730337079,
+            1.0618556701,
+            1.10752688172,
+            1.0};
 
     // Contructors
     CircleDetection(Bitmap image_input) {
@@ -28,7 +84,10 @@ public class CircleDetection {
     }
 
     //Methods
+
+    // Detecteer cirkels en stop zo in circles array
     public void DetectCircles() {
+
         // Define stuff
         Bitmap image = this.image;
         Mat imgMat = new Mat();
@@ -40,13 +99,9 @@ public class CircleDetection {
 
         // Blur image
         GaussianBlur(imgMat, imgMat, new Size(9, 9), 2, 2);
-        //medianBlur(imgMat, imgMat, 5);
 
         // Detect circles
-
         /*HoughCircles( src_gray, circles, CV_HOUGH_GRADIENT, 1, src_gray.rows/8, 200, 100, 0, 0 );
-        with the arguments:
-
         src_gray: Input image (grayscale)
         circles: A vector that stores sets of 3 values: x_{c}, y_{c}, r for each detected circle.
         CV_HOUGH_GRADIENT: Define the detection method. Currently this is the only one available in OpenCV
@@ -56,37 +111,177 @@ public class CircleDetection {
         param_2 = 100*: Threshold for center detection.
         min_radius = 0: Minimum radio to be detected. If unknown, put zero as default.
         max_radius = 0: Maximum radius to be detected. If unknown, put zero as default */
-        //Imgproc.HoughCircles(imgMat, imgCircles, Imgproc.CV_HOUGH_GRADIENT, 1, imgMat.rows() / 8, 100, 50, 100, 0);
         Imgproc.HoughCircles(imgMat, imgCircles, Imgproc.CV_HOUGH_GRADIENT, 1, imgMat.rows() / 8, 100, 50, 0, 0);
 
         // Add color back to image
         Utils.bitmapToMat(image, imgMat);
 
-        float[] circle = new float[3];
+        // Add circles to array
+        circles = new float[imgCircles.cols()][3];
         for (int i = 0; i < imgCircles.cols(); i++) {
-            imgCircles.get(0, i, circle);
+            imgCircles.get(0, i, circles[i]);
+        }
+        circle_value = new float[imgCircles.cols()];
+        Log.i(TAG, "Cirkels gedetect:" + imgCircles.cols());
+
+    }
+
+    // Bepaal waarden van circles door middel van diameter analyse
+    public void ValueCircles_by_radius() {
+
+        Log.i(TAG, "DIAMETERANALYSE BEGONNEN");
+
+        // Loop door circles
+        for (int i = 0; i < circles.length; i++) {
+
+            // Als de waarde van de cirkel nog niet bepaald is
+            if (this.circle_value[i] == 0.0f) {
+
+                // Bepaal waarde cirkel op basis van "voting" dmv vergelijken diameters
+                int[] votes = new int[6];
+
+                // TODO: THREADING TOEVOEGEN
+
+                // Loop door overige cirkels
+                for (int j = 0; j < this.circles.length; j++) {
+
+                    // Niet vergelijken met zichzelf
+                    if (j != i) {
+
+                        double epsilon = 0.015;
+
+                        for (int a = 0; a < this.vijfcent.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.vijfcent[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.vijfcent[a] * epsilon)) {
+                                votes[0] += 1;
+                                break;
+                            }
+                        }
+
+                        for (int a = 0; a < this.tiencent.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.tiencent[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.tiencent[a] * epsilon)) {
+                                votes[1] += 1;
+                                break;
+                            }
+                        }
+
+                        for (int a = 0; a < this.twintigcent.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.twintigcent[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.twintigcent[a] * epsilon)) {
+                                votes[2] += 1;
+                                break;
+                            }
+                        }
+
+                        for (int a = 0; a < this.vijftigcent.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.vijftigcent[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.vijftigcent[a] * epsilon)) {
+                                votes[3] += 1;
+                                break;
+                            }
+                        }
+
+                        for (int a = 0; a < this.euro.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.euro[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.euro[a] * epsilon)) {
+                                votes[4] += 1;
+                                break;
+                            }
+                        }
+
+                        for (int a = 0; a < this.tweeeuro.length; a++) {
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            if (Math.abs(this.tweeeuro[a] - ((double) this.circles[i][2]
+                                    / (double) this.circles[j][2])) < (this.tweeeuro[a] * epsilon)) {
+                                votes[5] += 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Bepaal welke munt het is op basis van de votes
+                int munt = 0;
+                int max = 0;
+                for (int z = 0; z < votes.length; z++) {
+                    if (votes[z] > max) {
+                        max = votes[z];
+                        munt = z;
+                    }
+                }
+
+                // Geef waarde aan de munt
+                switch (munt) {
+                    case 0:
+                        this.circle_value[i] = 0.05f;
+                        break;
+                    case 1:
+                        this.circle_value[i] = 0.10f;
+                        break;
+                    case 2:
+                        this.circle_value[i] = 0.20f;
+                        break;
+                    case 3:
+                        this.circle_value[i] = 0.50f;
+                        break;
+                    case 4:
+                        this.circle_value[i] = 1.00f;
+                        break;
+                    case 5:
+                        this.circle_value[i] = 2.00f;
+                        break;
+                }
+            }
+        }
+    }
+
+    public void DrawCircles() {
+
+        // Zet Bitmap om in Matrix
+        Mat imgMat = new Mat();
+        Utils.bitmapToMat(image, imgMat);
+
+        // Teken waarde per cirkel
+        float[] circle = new float[3];
+        for (int i = 0; i < this.circles.length; i++) {
+            circle = this.circles[i];
             Point center = new Point();
             center.x = circle[0];
             center.y = circle[1];
-            //Core.circle(imgMat, center, 3,new Scalar(255,255,255), -1, 8, 0 );
-            if ((int)circle[2] > 180)
-                Core.putText(imgMat, "2 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 170)
-                Core.putText(imgMat, "1 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 160)
-                Core.putText(imgMat, "20 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 157)
-                Core.putText(imgMat, "50 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 140)
-                Core.putText(imgMat, "5 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 130)
-                Core.putText(imgMat, "10 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
+
+            if (this.circle_value[i] == 0.05f)
+                Core.putText(imgMat, "5 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+            else if (this.circle_value[i] == 0.10f)
+                Core.putText(imgMat, "10 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+            else if (this.circle_value[i] == 0.20f)
+                Core.putText(imgMat, "20 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+            else if (this.circle_value[i] == 0.50f)
+                Core.putText(imgMat, "50 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+            else if (this.circle_value[i] == 1.00f)
+                Core.putText(imgMat, "1 euro", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+            else if (this.circle_value[i] == 2.00f)
+                Core.putText(imgMat, "2 euro", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+
             Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
-            Coins[i] = (int) circle[2];
 
             // Convert image back to Bitmap
             this.image = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(imgMat, this.image);
         }
+    }
+
+    public void Totaal() {
+        double totaal_cur = 0;
+        for (int i = 0; i < circle_value.length; i++) {
+            totaal_cur += (double) circle_value[i];
+        }
+        this.totaal = totaal_cur;
+        Log.i(TAG, "Totaal:" + this.totaal);
     }
 }
