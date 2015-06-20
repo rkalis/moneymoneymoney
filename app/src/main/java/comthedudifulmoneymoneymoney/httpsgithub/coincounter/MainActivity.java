@@ -47,7 +47,6 @@ public class MainActivity extends ActionBarActivity implements ImageListener{
     private Uri imageUri;
     private Bitmap bmp;
     private TextView text;
-    private int[] coins = new int[50];
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -150,53 +149,19 @@ public class MainActivity extends ActionBarActivity implements ImageListener{
     @Override
     public void onImage(Bitmap image) {
 
-        Mat imgMat = new Mat();
-        Mat imgCircles = new Mat();
-        Utils.bitmapToMat(image, imgMat);
-        // convert image to greyscale
-        Imgproc.cvtColor(imgMat, imgMat, Imgproc.COLOR_BGR2GRAY);
-        // blur image
-        medianBlur(imgMat, imgMat, 5);
-        // detect circles
-        Imgproc.HoughCircles(imgMat, imgCircles, Imgproc.CV_HOUGH_GRADIENT, 1, imgMat.rows()/8, 100, 50, 100, 0);
-
-        Log.d(TAG, "circles detected: " + imgCircles.cols());
-        Utils.bitmapToMat(image, imgMat);
-
-        float[] circle = new float[3];
-        for (int i = 0; i < imgCircles.cols(); i++) {
-            imgCircles.get(0, i, circle);
-            Point center = new Point();
-            center.x = circle[0];
-            center.y = circle[1];
-            //Core.circle(imgMat, center, 3,new Scalar(255,255,255), -1, 8, 0 );
-            if ((int)circle[2] > 180)
-            Core.putText(imgMat, "2 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 170)
-                Core.putText(imgMat, "1 Euro", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 160)
-                Core.putText(imgMat, "20 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 157)
-                Core.putText(imgMat, "50 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 140)
-                Core.putText(imgMat, "5 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            else if ((int)circle[2] > 130)
-                Core.putText(imgMat, "10 cent", center, 3/* CV_FONT_HERSHEY_COMPLEX */, 1, new Scalar(255, 0, 0, 255), 3);
-            Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
-            coins[i] = (int) circle[2];
-        }
-        image = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(imgMat, image);
+        CircleDetection CD = new CircleDetection(image);
+        CD.DetectCircles();
+        image = CD.image;
         this.view.onImage(image);
 
-        String textc = "";
+        /*String textc = "";
 
         for (int i = 0; i < coins.length; i++){
             if (coins[i] != 0){
                 textc += " " + coins[i];
             }
         }
-        this.text.setText(textc);
+        this.text.setText(textc); */
     }
 
     public void onSaveInstanceState(Bundle outState) {

@@ -59,6 +59,9 @@ public class ImageDisplayView extends View implements ImageListener {
 
         /* If there is an image to be drawn: */
         if (this.currentImage != null) {
+            CircleDetection CD = new CircleDetection(this.currentImage);
+            CD.DetectCircles();
+            this.currentImage = CD.image;
             canvas.drawBitmap(this.currentImage, 0, 0, null);
         }
     }
