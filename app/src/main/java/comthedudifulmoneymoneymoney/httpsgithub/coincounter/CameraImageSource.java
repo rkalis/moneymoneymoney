@@ -77,7 +77,7 @@ public class CameraImageSource implements ImageSource, Camera.PreviewCallback {
         }
     }
 
-    private void releaseCamera() {
+    public void releaseCamera() {
         if (this.camera != null) {
             this.camera.stopPreview();
             this.camera.setPreviewCallback(null);

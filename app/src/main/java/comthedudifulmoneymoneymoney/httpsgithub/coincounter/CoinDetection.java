@@ -64,7 +64,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.vijfcent[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.vijfcent[a] * epsilon)) {
                                         votes[0] += 1;
-                                        break;
                                     }
                                 }
 
@@ -73,7 +72,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.tiencent[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.tiencent[a] * epsilon)) {
                                         votes[1] += 1;
-                                        break;
                                     }
                                 }
 
@@ -82,7 +80,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.twintigcent[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.twintigcent[a] * epsilon)) {
                                         votes[2] += 1;
-                                        break;
                                     }
                                 }
 
@@ -91,7 +88,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.vijftigcent[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.vijftigcent[a] * epsilon)) {
                                         votes[3] += 1;
-                                        break;
                                     }
                                 }
 
@@ -100,7 +96,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.euro[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.euro[a] * epsilon)) {
                                         votes[4] += 1;
-                                        break;
                                     }
                                 }
 
@@ -109,7 +104,6 @@ public class CoinDetection {
                                     if (Math.abs(CoinRatios.tweeeuro[a] - ((double) this.circles[i][2]
                                             / (double) this.circles[j][2])) < (CoinRatios.tweeeuro[a] * epsilon)) {
                                         votes[5] += 1;
-                                        break;
                                     }
                                 }
                             }
