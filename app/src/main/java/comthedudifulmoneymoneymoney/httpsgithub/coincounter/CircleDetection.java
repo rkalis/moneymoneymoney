@@ -155,7 +155,6 @@ public class CircleDetection {
                             if (Math.abs(this.vijfcent[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.vijfcent[a] * epsilon)) {
                                 votes[0] += 1;
-                                break;
                             }
                         }
 
@@ -164,7 +163,6 @@ public class CircleDetection {
                             if (Math.abs(this.tiencent[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.tiencent[a] * epsilon)) {
                                 votes[1] += 1;
-                                break;
                             }
                         }
 
@@ -173,7 +171,6 @@ public class CircleDetection {
                             if (Math.abs(this.twintigcent[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.twintigcent[a] * epsilon)) {
                                 votes[2] += 1;
-                                break;
                             }
                         }
 
@@ -182,7 +179,6 @@ public class CircleDetection {
                             if (Math.abs(this.vijftigcent[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.vijftigcent[a] * epsilon)) {
                                 votes[3] += 1;
-                                break;
                             }
                         }
 
@@ -191,7 +187,6 @@ public class CircleDetection {
                             if (Math.abs(this.euro[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.euro[a] * epsilon)) {
                                 votes[4] += 1;
-                                break;
                             }
                         }
 
@@ -200,7 +195,6 @@ public class CircleDetection {
                             if (Math.abs(this.tweeeuro[a] - ((double) this.circles[i][2]
                                     / (double) this.circles[j][2])) < (this.tweeeuro[a] * epsilon)) {
                                 votes[5] += 1;
-                                break;
                             }
                         }
                     }
