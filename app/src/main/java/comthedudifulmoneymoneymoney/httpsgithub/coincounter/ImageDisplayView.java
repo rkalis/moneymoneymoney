@@ -56,7 +56,7 @@ public class ImageDisplayView extends View implements ImageListener {
         CD.DetectCircles();
         CD.ValueCircles_by_radius();
         CD.Totaal();
-        MainActivity.text.setText(String.format("%.2f", CD.totaal));
+        MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
         CD.DrawCircles();
         this.currentImage = CD.image;
 
