@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity{
     private ImageDisplayView view;
     private Uri imageUri;
     private Bitmap bmp;
-    private TextView text;
+    public static TextView text;
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -86,6 +86,8 @@ public class MainActivity extends ActionBarActivity{
             image = savedInstanceState.getParcelable("bitmap");
             view.onImage(image);
         }
+
+
     }
 
     private void loadButtons() {
