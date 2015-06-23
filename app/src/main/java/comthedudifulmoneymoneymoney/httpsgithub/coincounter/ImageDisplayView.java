@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.graphics.Color;
 import android.graphics.Bitmap;
@@ -47,7 +48,9 @@ public class ImageDisplayView extends View implements ImageListener {
          * redrawn. */
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
+        //matrix.postScale(200, 200);
         this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
+
 
         CircleDetection CD = new CircleDetection(this.currentImage);
         CD.DetectCircles();
@@ -56,6 +59,9 @@ public class ImageDisplayView extends View implements ImageListener {
         MainActivity.text.setText(String.format("%.2f", CD.totaal));
         CD.DrawCircles();
         this.currentImage = CD.image;
+
+
+        this.currentImage = Bitmap.createScaledBitmap(CD.image, this.getWidth(), this.getHeight(), true);
 
         this.invalidate();
     }
@@ -84,4 +90,5 @@ public class ImageDisplayView extends View implements ImageListener {
     public ImageSource getImageSource() {
         return this.source;
     }
+
 }
