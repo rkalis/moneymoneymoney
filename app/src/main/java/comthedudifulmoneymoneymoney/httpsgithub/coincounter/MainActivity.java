@@ -111,13 +111,13 @@ public class MainActivity extends ActionBarActivity{
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File storageDir;
-                try {
-                    File dir = getExternalFilesDir(null);
-                    storageDir = File.createTempFile("camera_img", ".jpg", dir);
-                } catch (IOException e) {
-                    return;
-                }
+//                File storageDir;
+//                try {
+//                    File dir = getExternalFilesDir(null);
+//                    storageDir = File.createTempFile("camera_img", ".jpg", dir);
+//                } catch (IOException e) {
+//                    return;
+//                }
 
                 /* Set camera as active source: */
                 ImageDisplayView idv = (ImageDisplayView)findViewById(R.id.image_display_view);

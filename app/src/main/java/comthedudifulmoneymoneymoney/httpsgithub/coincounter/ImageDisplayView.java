@@ -52,16 +52,24 @@ public class ImageDisplayView extends View implements ImageListener {
         this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
 
 
+//        CircleDetection CD = new CircleDetection(this.currentImage);
+//        CD.DetectCircles();
+//        CD.ValueCircles_by_radius();
+//        CD.Totaal();
+//        MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
+//        CD.DrawCircles();
+//        this.currentImage = CD.image;
+
         CircleDetection CD = new CircleDetection(this.currentImage);
         CD.DetectCircles();
+        CircleDetectionRansac CDR = new CircleDetectionRansac(this.currentImage);
+        CDR.detectCircles(CD.circles.length);
         CD.ValueCircles_by_radius();
         CD.Totaal();
-        MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
-        CD.DrawCircles();
-        this.currentImage = CD.image;
 
 
-        this.currentImage = Bitmap.createScaledBitmap(CD.image, this.getWidth(), this.getHeight(), true);
+
+        this.currentImage = Bitmap.createScaledBitmap(CDR.image, this.getWidth(), this.getHeight(), true);
 
         this.invalidate();
     }
