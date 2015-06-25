@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.graphics.Color;
@@ -25,9 +26,9 @@ public class ImageDisplayView extends View implements ImageListener {
 
     CircleDetection CD_cur = new CircleDetection();
     CircleDetection CD_done = new CircleDetection();
-    boolean processing = false;
+    Matrix matrix = new Matrix();
+    boolean once = false;
     Thread t = null;
-    Bitmap temp;
 
 
     /*** Constructors ***/
@@ -44,6 +45,12 @@ public class ImageDisplayView extends View implements ImageListener {
         super(context, attrs, defStyle);
     }
 
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return px;
+    }
+
     /*** Image drawing ***/
 
     private Bitmap currentImage = null;
@@ -52,46 +59,56 @@ public class ImageDisplayView extends View implements ImageListener {
     @Override
     public void onImage(Bitmap argb) {
 
-        // Draai Bitmap
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
+        // Draai en schaal nieuwe frame
+        matrix.reset();
+        matrix.postScale(((float) this.getHeight()) / argb.getWidth(), ((float) this.getWidth()) / argb.getHeight());
 
-        CD_done.LoadImage(this.currentImage);
 
-        // Eerste Bitmap (bij opstarten camera)
-        if(t == null) {
-            // Doe eerste berekning in main Thread
+        //argb = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true); */
+
+        // Laad nieuwe frame
+        CD_done.LoadImage(argb);
+
+        // Alleen eerste frame (bij opstarten camera)
+        if (t == null) {
+            Log.i("Thread", "Threading begonnen");
+            //
+
+
+
+
+
+
+
+
+
+
+
+            // Doe eerste berekening in main Thread
             CD_done.DetectCircles();
             CD_done.ValueCircles_by_radius();
             CD_done.Totaal();
 
             // Start nieuwe Thread
-            CD_cur = new CircleDetection(this.currentImage);
+            CD_cur = new CircleDetection(argb);
             t = new Thread(CD_cur);
             t.start();
         }
 
         // Als de Thread klaar is met rekenen
         if (!this.t.isAlive()) {
-
             // Einde Thread afhandelen
             CD_done = CD_cur;
-            CD_done.LoadImage(this.currentImage);
+            CD_done.LoadImage(argb);
 
             // Nieuwe Thread beginnen
-            CD_cur = new CircleDetection(this.currentImage);
+            CD_cur = new CircleDetection(argb);
             t = new Thread(CD_cur);
             t.start();
         }
 
-        // Teken meest recente cirkels + totaal
-        CD_done.DrawCircles();
-        MainActivity.text.setText("Totaal: " + String.format("%.2f", CD_done.totaal));
-
-        // Schaal Bitmap voor op het scherm
-        this.currentImage = Bitmap.createScaledBitmap(CD_done.image, this.getWidth(), this.getHeight(), true);
-
+        // Geef frame door
+        this.currentImage = CD_done.image;
         this.invalidate();
 
     }
@@ -102,7 +119,15 @@ public class ImageDisplayView extends View implements ImageListener {
 
         /* If there is an image to be drawn: */
         if (this.currentImage != null) {
-            canvas.drawBitmap(this.currentImage, 0, 0, null);
+
+            // Teken meest recente cirkels + totaal op frame
+            CD_done.DrawCircles();
+            MainActivity.text.setText("Totaal: " + String.format("%.2f", CD_done.totaal));
+
+            matrix.postRotate(90);
+            matrix.postTranslate(canvas.getWidth(), dpToPx(30));
+            canvas.setMatrix(matrix);
+            canvas.drawBitmap(CD_done.image, 0, 0, null);
         }
     }
 
