@@ -1,6 +1,7 @@
 package comthedudifulmoneymoneymoney.httpsgithub.coincounter;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 
 import org.opencv.android.Utils;
@@ -246,6 +247,7 @@ public class CircleDetection {
                     }
                 }
 
+                /*
                 // Geef waarde aan de munt
                 switch (munt) {
                     case 0:
@@ -266,7 +268,7 @@ public class CircleDetection {
                     case 5:
                         this.circle_value[i] = 2.00f;
                         break;
-                }
+                } */
             }
         }
     }
@@ -280,12 +282,12 @@ public class CircleDetection {
         image.getPixels(pix, 0, picw, 0, 0, picw, pich);
 
         int aantal;
-        int r;
-        int g;
-        int b;
+        float r;
+        float g;
+        float b;
 
-        /* array that will hold the red, green, blue and sd values */
-        sd_array = new int[circles.length][4];
+        /* array that will hold the red, green, blue and hsv values */
+        sd_array = new int[circles.length][6];
 
         /* loop through all the cirkles */
         for (int i = 0; i < circles.length; i++) {
@@ -293,42 +295,34 @@ public class CircleDetection {
             r = 0;
             g = 0;
             b = 0;
-            r_array = new int [200000];
-            b_array = new int [200000];
-            g_array = new int [200000];
 
-            /* for each circle calculate all the pixels within */
-            for(float x = -circles[i][2]; x <= circles[i][2]; ++x) {
-                for (float y = -circles[i][2]; y <= circles[i][2]; ++y) {
-                    if (x * x + y * y <= circles[i][2] * circles[i][2]) {
-                        /* if the pixel is inside the circle extract the rgb values */
-                        r_array[aantal] += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 16));
-                        r += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 16));
-                        g_array[aantal] += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 8));
-                        g += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 8));
-                        b_array[aantal] += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 0));
-                        b += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (y + circles[i][1]))] >> 0));
-                        aantal++;
-                    }
+            for (int x = -(int)(circles[i][2]/2); x< (int)(circles[i][2]/2); x++) {
+                for (int y = -(int)(circles[i][2]/2); y < (int)(circles[i][2]/2)  ; y++){
+                    r += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
+                            (double) (circles[i][1]))] >> 16));
+                    g += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
+                            (double) (circles[i][1]))] >> 8));
+                    b += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
+                            (double) (circles[i][1]))] >> 0));
+                    aantal++;
                 }
             }
 
+            sd_array[i][0] = (int)(r/aantal);
+            sd_array[i][1] = (int)(g/aantal);
+            sd_array[i][2] = (int)(b/aantal);
 
-            sd_array[i][0] = r/aantal;
-            sd_array[i][1] = g/aantal;
-            sd_array[i][2] = b/aantal;
+            float[] hsv = new float[3];
+            Color.RGBToHSV(sd_array[i][0], sd_array[i][1], sd_array[i][2], hsv);
 
-            sd_array[i][3] = (int)(calcSd(r_array, aantal) + calcSd(g_array, aantal) + calcSd(b_array, aantal)/3);
+            sd_array[i][3] = (int)hsv[0];
+            sd_array[i][4] = (int)hsv[1];
+            sd_array[i][5] = (int)hsv[2];
 
-            //if (i == circles.length -1) {
-                //MainActivity.text.setText(Integer.toString(aantal));
-            //}
+            if (sd_array[i][3] < 25 && sd_array[i][3] > 0) this.circle_value[i] = 0.05f;
+            else if (sd_array[i][3] > 65) this.circle_value[i] = 1.00f;
+            else this.circle_value[i] = 0.10f;
+
         }
     }
 
@@ -358,7 +352,7 @@ public class CircleDetection {
     /* calculate the array index value from the x and y coordinate */
     public int calculateInt (double x, double y){
         int index = 0;
-        index = (int)((y) * image.getWidth() + (x));
+        index = (int)((int)(y) * image.getWidth() + (int)(x));
         return index;
     }
 
@@ -379,17 +373,17 @@ public class CircleDetection {
             center.y = circle[1];
 
             if (this.circle_value[i] == 0.05f)
-                Core.putText(imgMat, "5 cent" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "5 cent" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.10f)
-                Core.putText(imgMat, "10 cent" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "10 cent" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.20f)
-                Core.putText(imgMat, "20 cent" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "20 cent" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.50f)
-                Core.putText(imgMat, "50 cent" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "50 cent" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 1.00f)
-                Core.putText(imgMat, "1 euro" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "1 euro" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 2.00f)
-                Core.putText(imgMat, "2 euro" + " " +  Integer.toString(sd_array[i][0]) + " " +  Integer.toString(sd_array[i][1]) + " " +  Integer.toString(sd_array[i][2]) + " " +  Integer.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "2 euro" + " " + Float.toString(sd_array[i][3]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
 
             Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
 
