@@ -23,6 +23,13 @@ import java.util.Arrays;
  */
 public class ImageDisplayView extends View implements ImageListener {
 
+    CircleDetection CD_cur = new CircleDetection();
+    CircleDetection CD_done = new CircleDetection();
+    boolean processing = false;
+    Thread t = null;
+    Bitmap temp;
+
+
     /*** Constructors ***/
 
     public ImageDisplayView(Context context) {
@@ -44,27 +51,49 @@ public class ImageDisplayView extends View implements ImageListener {
 
     @Override
     public void onImage(Bitmap argb) {
-        /* When we recieve an image, simply store it and invalidate the View so it will be
-         * redrawn. */
+
+        // Draai Bitmap
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
-        //matrix.postScale(200, 200);
         this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
 
+        CD_done.LoadImage(this.currentImage);
 
-        CircleDetection CD = new CircleDetection(this.currentImage);
-        CD.DetectCircles();
-        //CD.HSVColorDetection();
-        CD.ValueCircles_by_radius();
-        CD.Totaal();
-        //MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
-        CD.DrawCircles();
-        this.currentImage = CD.image;
+        // Eerste Bitmap (bij opstarten camera)
+        if(t == null) {
+            // Doe eerste berekning in main Thread
+            CD_done.DetectCircles();
+            CD_done.ValueCircles_by_radius();
+            CD_done.Totaal();
 
+            // Start nieuwe Thread
+            CD_cur = new CircleDetection(this.currentImage);
+            t = new Thread(CD_cur);
+            t.start();
+        }
 
-        this.currentImage = Bitmap.createScaledBitmap(CD.image, this.getWidth(), this.getHeight(), true);
+        // Als de Thread klaar is met rekenen
+        if (!this.t.isAlive()) {
+
+            // Einde Thread afhandelen
+            CD_done = CD_cur;
+            CD_done.LoadImage(this.currentImage);
+
+            // Nieuwe Thread beginnen
+            CD_cur = new CircleDetection(this.currentImage);
+            t = new Thread(CD_cur);
+            t.start();
+        }
+
+        // Teken meest recente cirkels + totaal
+        CD_done.DrawCircles();
+        MainActivity.text.setText("Totaal: " + String.format("%.2f", CD_done.totaal));
+
+        // Schaal Bitmap voor op het scherm
+        this.currentImage = Bitmap.createScaledBitmap(CD_done.image, this.getWidth(), this.getHeight(), true);
 
         this.invalidate();
+
     }
 
     @Override

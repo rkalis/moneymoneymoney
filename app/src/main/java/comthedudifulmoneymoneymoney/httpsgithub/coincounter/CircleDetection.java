@@ -18,7 +18,7 @@ import static org.opencv.imgproc.Imgproc.medianBlur;
 /**
  * Created by chronos on 20-6-15.
  */
-public class CircleDetection {
+public class CircleDetection implements Runnable {
 
     private static final String TAG = "CD";
 
@@ -40,57 +40,63 @@ public class CircleDetection {
     float[] circle_value;
 
     // Totaal waarde munten
-    double totaal = 0;
+    float totaal = 0;
 
     // Vaste Verhoudingen tussen diameters van munten/5ct/10ct/20ct/50ct/1e/2e
-    final double[] vijfcent = {//1.0,
-            1.07594936709,
-            0.955056179775,
-            0.876288659794,
-            0.913978494624,
-            0.825242718447,};
+    final float[] vijfcent = {//1.0,
+            1.07594936709f,
+            0.955056179775f,
+            0.876288659794f,
+            0.913978494624f,
+            0.825242718447f,};
 
-    final double[] tiencent = {0.929411764706,
+    final float[] tiencent = {0.929411764706f,
             //1.0,
-            0.887640449438,
-            0.814432989691,
-            0.849462365591,
-            0.766990291262};
+            0.887640449438f,
+            0.814432989691f,
+            0.849462365591f,
+            0.766990291262f};
 
-    final double[] twintigcent = {1.04705882353,
-            1.12658227848,
+    final float[] twintigcent = {1.04705882353f,
+            1.12658227848f,
             //1.0,
-            0.917525773196,
-            0.956989247312,
-            0.864077669903};
+            0.917525773196f,
+            0.956989247312f,
+            0.864077669903f};
 
-    final double[] vijftigcent = {1.14117647059,
-            1.22784810127,
-            1.08988764045,
+    final float[] vijftigcent = {1.14117647059f,
+            1.22784810127f,
+            1.08988764045f,
             //1.0,
-            1.04301075269,
-            0.941747572816};
+            1.04301075269f,
+            0.941747572816f};
 
-    final double[] euro = {1.09411764706,
-            1.17721518987,
-            1.04494382022,
-            0.958762886598,
+    final float[] euro = {1.09411764706f,
+            1.17721518987f,
+            1.04494382022f,
+            0.958762886598f,
             //1.0,
-            0.902912621359};
+            0.902912621359f};
 
-    final double[] tweeeuro = {1.21176470588,
-            1.30379746835,
-            1.15730337079,
-            1.0618556701,
-            1.10752688172/*,
+    final float[] tweeeuro = {1.21176470588f,
+            1.30379746835f,
+            1.15730337079f,
+            1.0618556701f,
+            1.10752688172f/*,
             1.0*/};
 
     // Contructors
+    CircleDetection(){}
+
     CircleDetection(Bitmap image_input) {
-        image = image_input;
+        this.image = image_input;
     }
 
     //Methods
+
+    public void LoadImage(Bitmap image_input){
+        this.image = image_input;
+    }
 
     // Detecteer cirkels en stop zo in circles array
     public void DetectCircles() {
@@ -150,91 +156,100 @@ public class CircleDetection {
 
                 // Bepaal waarde cirkel op basis van "voting" dmv vergelijken diameters
                 int[] votes = new int[6];
-                double lowest_diff;
+                float lowest_diff, current_diff;
                 int currentvote;
+
+                lowest_diff = 10.0f;
+                currentvote = 0;
 
                 // Loop door overige cirkels, en "Vraag" aan iedere cirkel welke waarde je het meest
                 // waarschijnlijk bent volgens de deling met hun diameter
                 for (int j = 0; j < this.circles.length; j++) {
 
-                    lowest_diff = 10.0;
-                    currentvote = 0;
+
 
                     // Niet vergelijken met zichzelf
                     if (j != i) {
 
-
-                        //NU DE LOOPS AANPASSEN
                         for (int a = 0; a < this.vijfcent.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.vijfcent[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.vijfcent[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.vijfcent[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 0;
                             }
                         }
 
+                        // Loop door mogelijke diameterverhoudingen
                         for (int a = 0; a < this.tiencent.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.tiencent[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.tiencent[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.tiencent[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 1;
                             }
                         }
 
                         for (int a = 0; a < this.twintigcent.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.twintigcent[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.twintigcent[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.twintigcent[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 2;
                             }
                         }
 
                         for (int a = 0; a < this.vijftigcent.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.vijftigcent[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.vijftigcent[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.vijftigcent[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 3;
                             }
                         }
 
                         for (int a = 0; a < this.euro.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.euro[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.euro[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.euro[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 4;
                             }
                         }
 
                         for (int a = 0; a < this.tweeeuro.length; a++) {
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            if (Math.abs(this.tweeeuro[a] - ((double) this.circles[i][2]
-                                    / (double) this.circles[j][2])) < lowest_diff) {
 
-                                lowest_diff = Math.abs(this.tweeeuro[a] -
-                                        ((double) this.circles[i][2] / (double) this.circles[j][2]));
+                            // Als de diameter deling significant lijkt op die van vaste verhouding
+                            current_diff = Math.abs(this.tweeeuro[a] - (this.circles[i][2]
+                                    / this.circles[j][2]));
+
+                            if (current_diff < lowest_diff) {
+                                lowest_diff = current_diff;
                                 currentvote = 5;
                             }
                         }
 
-                        if (lowest_diff < 9.0) {
-                            votes[currentvote] += 1;
-                        }
+
                     }
+                }
+
+                if (lowest_diff < 9.0) {
+                    votes[currentvote] += 1;
                 }
 
                 // Bepaal welke munt het is op basis van de votes
@@ -394,11 +409,18 @@ public class CircleDetection {
     }
 
     public void Totaal() {
-        double totaal_cur = 0;
+        float totaal_cur = 0.0f;
         for (int i = 0; i < circle_value.length; i++) {
-            totaal_cur += (double) circle_value[i];
+            totaal_cur += circle_value[i];
         }
         this.totaal = totaal_cur;
         Log.i(TAG, "Totaal:" + this.totaal);
+    }
+
+    @Override
+    public void run() {
+            this.DetectCircles();
+            this.ValueCircles_by_radius();
+            this.Totaal();
     }
 }

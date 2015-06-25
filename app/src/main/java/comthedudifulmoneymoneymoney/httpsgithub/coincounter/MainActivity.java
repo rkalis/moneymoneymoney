@@ -63,6 +63,7 @@ public class MainActivity extends ActionBarActivity{
     };
 
     private CameraImageSource cis;
+    private boolean resumeCamera;
 
     private Bitmap image;
 
@@ -81,6 +82,8 @@ public class MainActivity extends ActionBarActivity{
         } else {
             this.loadButtons();
         }
+
+        this.resumeCamera = false;
 
         if (savedInstanceState != null) {
             image = savedInstanceState.getParcelable("bitmap");
@@ -175,7 +178,18 @@ public class MainActivity extends ActionBarActivity{
     @Override
     protected void onPause() {
         super.onPause();
-        //cis.releaseCamera();
+        if(cis.hasCamera) {
+            this.resumeCamera = true;
+            cis.releaseCamera();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(this.resumeCamera) {
+            cis.acquireCamera();
+        }
     }
 
 }

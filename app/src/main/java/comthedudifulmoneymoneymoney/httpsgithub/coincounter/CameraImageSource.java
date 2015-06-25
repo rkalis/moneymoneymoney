@@ -29,7 +29,7 @@ public class CameraImageSource implements ImageSource, Camera.PreviewCallback {
     public static final int BACK_CAMERA = 0;
     public static final int FRONT_CAMERA = 1;
 
-    private boolean hasCamera = false;
+    public boolean hasCamera = false;
     private Camera camera = null;
 
     private int backCameraId = -1;
@@ -91,7 +91,7 @@ public class CameraImageSource implements ImageSource, Camera.PreviewCallback {
     /* Something to make the camera API think it's rendering directly to something. */
     private final SurfaceTexture dummySurface = new SurfaceTexture(42);
 
-    private void acquireCamera() {
+    public void acquireCamera() {
         this.releaseCamera();
 
         if (currentCamera == FRONT_CAMERA) {
