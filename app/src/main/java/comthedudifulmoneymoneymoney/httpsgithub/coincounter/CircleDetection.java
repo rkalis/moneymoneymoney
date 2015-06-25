@@ -288,6 +288,7 @@ public class CircleDetection implements Runnable {
         }
     }
 
+
     public void ColorDetetion() {
         int picw = image.getWidth();
         int pich = image.getHeight();
