@@ -10,14 +10,12 @@ package comthedudifulmoneymoneymoney.httpsgithub.coincounter;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.graphics.Color;
 import android.graphics.Bitmap;
-import java.util.Arrays;
+
 
 /*
  * This is a View that displays incoming images.
@@ -26,8 +24,10 @@ public class ImageDisplayView extends View implements ImageListener {
 
     CircleDetection CD_cur = new CircleDetection();
     CircleDetection CD_done = new CircleDetection();
+
+    // Canvas matrix om image te roteren en schalen
     Matrix matrix = new Matrix();
-    boolean once = false;
+    // Thread om cirkeldetectie in te draaien
     Thread t = null;
 
 
@@ -59,12 +59,9 @@ public class ImageDisplayView extends View implements ImageListener {
     @Override
     public void onImage(Bitmap argb) {
 
-        // Draai en schaal nieuwe frame
+        // Voeg schaling toe aan canvas matrix
         matrix.reset();
         matrix.postScale(((float) this.getHeight()) / argb.getWidth(), ((float) this.getWidth()) / argb.getHeight());
-
-
-        //argb = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true); */
 
         // Laad nieuwe frame
         CD_done.LoadImage(argb);
@@ -72,23 +69,9 @@ public class ImageDisplayView extends View implements ImageListener {
         // Alleen eerste frame (bij opstarten camera)
         if (t == null) {
             Log.i("Thread", "Threading begonnen");
-            //
 
-
-
-
-
-
-
-
-
-
-
-            // Doe eerste berekening in main Thread
-            CD_done.DetectCircles();
-            CD_done.ColorDetetion();
-            CD_done.ValueCircles_by_radius();
-            CD_done.Totaal();
+            // Doe eerste berekening in Main thread
+            CD_done.run();
 
             // Start nieuwe Thread
             CD_cur = new CircleDetection(argb);
@@ -98,6 +81,7 @@ public class ImageDisplayView extends View implements ImageListener {
 
         // Als de Thread klaar is met rekenen
         if (!this.t.isAlive()) {
+
             // Einde Thread afhandelen
             CD_done = CD_cur;
             CD_done.LoadImage(argb);
@@ -125,8 +109,10 @@ public class ImageDisplayView extends View implements ImageListener {
             CD_done.DrawCircles();
             MainActivity.text.setText("Totaal: " + String.format("%.2f", CD_done.totaal));
 
+            // Pas canvas matrix aan
             matrix.postRotate(90);
             matrix.postTranslate(canvas.getWidth(), dpToPx(30));
+
             canvas.setMatrix(matrix);
             canvas.drawBitmap(CD_done.image, 0, 0, null);
         }

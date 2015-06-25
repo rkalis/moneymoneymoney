@@ -24,10 +24,6 @@ public class CircleDetection implements Runnable {
 
     // Fields
 
-    private int[] r_array;
-    private int[] b_array;
-    private int[] g_array;
-
     private int[][] sd_array;
 
     // Ingelade Bitmap
@@ -262,7 +258,7 @@ public class CircleDetection implements Runnable {
                     }
                 }
 
-                /*
+
                 // Geef waarde aan de munt
                 switch (munt) {
                     case 0:
@@ -283,7 +279,7 @@ public class CircleDetection implements Runnable {
                     case 5:
                         this.circle_value[i] = 2.00f;
                         break;
-                } */
+                }
             }
         }
     }
@@ -357,7 +353,6 @@ public class CircleDetection implements Runnable {
         double sum = 0;
         double mean = calcMean(m, aantal);
 
-
         /* take the power of 2 of each value minus the mean and sum these */
         for (int i = 0; i < m.length; i++)
             sum += (m[i] - mean) * (m[i] - mean);
@@ -377,8 +372,6 @@ public class CircleDetection implements Runnable {
         // Zet Bitmap om in Matrix
         Mat imgMat = new Mat();
         Utils.bitmapToMat(image, imgMat);
-
-
 
         // Teken waarde per cirkel
         float[] circle = new float[3];
@@ -421,6 +414,7 @@ public class CircleDetection implements Runnable {
     @Override
     public void run() {
             this.DetectCircles();
+            this.ColorDetetion();
             this.ValueCircles_by_radius();
             this.Totaal();
     }
