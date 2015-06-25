@@ -142,12 +142,14 @@ public class CircleDetection {
                 double lowest_diff;
                 int currentvote;
 
+                lowest_diff = 10.0;
+                currentvote = 0;
+
                 // Loop door overige cirkels, en "Vraag" aan iedere cirkel welke waarde je het meest
                 // waarschijnlijk bent volgens de deling met hun diameter
                 for (int j = 0; j < this.circles.length; j++) {
 
-                    lowest_diff = 10.0;
-                    currentvote = 0;
+
 
                     // Niet vergelijken met zichzelf
                     if (j != i) {
@@ -220,10 +222,12 @@ public class CircleDetection {
                             }
                         }
 
-                        if (lowest_diff < 9.0) {
-                            votes[currentvote] += 1;
-                        }
+
                     }
+                }
+
+                if (lowest_diff < 9.0) {
+                    votes[currentvote] += 1;
                 }
 
                 // Bepaal welke munt het is op basis van de votes
