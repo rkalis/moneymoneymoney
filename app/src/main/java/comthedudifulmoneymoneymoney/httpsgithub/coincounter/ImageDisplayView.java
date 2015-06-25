@@ -86,6 +86,7 @@ public class ImageDisplayView extends View implements ImageListener {
 
             // Doe eerste berekening in main Thread
             CD_done.DetectCircles();
+            CD_done.ColorDetetion();
             CD_done.ValueCircles_by_radius();
             CD_done.Totaal();
 
