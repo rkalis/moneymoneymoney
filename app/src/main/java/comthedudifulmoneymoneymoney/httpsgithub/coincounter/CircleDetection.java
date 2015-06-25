@@ -79,11 +79,13 @@ public class CircleDetection {
             1.0*/};
 
     // Contructors
-    CircleDetection(Bitmap image_input) {
-        image = image_input;
-    }
+    CircleDetection() {}
 
     //Methods
+
+    public void LoadImage(Bitmap image_input){
+        this.image = image_input;
+    }
 
     // Detecteer cirkels en stop zo in circles array
     public void DetectCircles() {

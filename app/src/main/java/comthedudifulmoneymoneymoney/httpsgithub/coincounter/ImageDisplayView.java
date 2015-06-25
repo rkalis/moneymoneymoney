@@ -23,6 +23,8 @@ import java.util.Arrays;
  */
 public class ImageDisplayView extends View implements ImageListener {
 
+    CircleDetection CD = new CircleDetection();
+
     /*** Constructors ***/
 
     public ImageDisplayView(Context context) {
@@ -45,19 +47,21 @@ public class ImageDisplayView extends View implements ImageListener {
     @Override
     public void onImage(Bitmap argb) {
 
-         /* When we recieve an image, simply store it and invalidate the View so it will be
-         * redrawn. */
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
+
+         /* When we recieve an image, simply store it and invalidate the View so it will be
+         * redrawn. */
+
         //matrix.postScale(200, 200);
         this.currentImage = Bitmap.createBitmap(argb, 0, 0, argb.getWidth(), argb.getHeight(), matrix, true);
-        CircleDetection CD = new CircleDetection(this.currentImage);
+        CD.LoadImage(this.currentImage);
         CD.DetectCircles();
         CD.ValueCircles_by_radius();
         CD.Totaal();
         MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
         CD.DrawCircles();
-        this.currentImage = CD.image;
+        //this.currentImage = CD.image;
         this.currentImage = Bitmap.createScaledBitmap(CD.image, this.getWidth(), this.getHeight(), true);
         this.invalidate();
 
