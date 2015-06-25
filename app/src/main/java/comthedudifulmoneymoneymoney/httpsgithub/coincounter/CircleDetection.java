@@ -1,6 +1,7 @@
 package comthedudifulmoneymoneymoney.httpsgithub.coincounter;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 
 import org.opencv.android.Utils;
@@ -24,8 +25,8 @@ public class CircleDetection {
     // Fields
 
     private int[] r_array;
-    private int[] b_array;
     private int[] g_array;
+    private int[] b_array;
 
     private int[][] sd_array;
 
@@ -275,7 +276,7 @@ public class CircleDetection {
         int picw = image.getWidth();
         int pich = image.getHeight();
 
-        /* create argb array from bitmap */
+        // create argb array from bitmap
         int[] pix = new int[picw * pich];
         image.getPixels(pix, 0, picw, 0, 0, picw, pich);
 
@@ -284,10 +285,10 @@ public class CircleDetection {
         int g;
         int b;
 
-        /* array that will hold the red, green, blue and sd values */
+        // array that will hold the red, green, blue and sd values
         sd_array = new int[circles.length][4];
 
-        /* loop through all the cirkles */
+        // loop through all the cirkles
         for (int i = 0; i < circles.length; i++) {
             aantal = 0;
             r = 0;
@@ -297,11 +298,11 @@ public class CircleDetection {
             b_array = new int [200000];
             g_array = new int [200000];
 
-            /* for each circle calculate all the pixels within */
+            // for each circle calculate all the pixels within
             for(float x = -circles[i][2]; x <= circles[i][2]; ++x) {
                 for (float y = -circles[i][2]; y <= circles[i][2]; ++y) {
                     if (x * x + y * y <= circles[i][2] * circles[i][2]) {
-                        /* if the pixel is inside the circle extract the rgb values */
+                        // if the pixel is inside the circle extract the rgb values
                         r_array[aantal] += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
                                 (double) (y + circles[i][1]))] >> 16));
                         r += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
@@ -330,6 +331,55 @@ public class CircleDetection {
                 //MainActivity.text.setText(Integer.toString(aantal));
             //}
         }
+    }
+
+    public void HSVColorDetection() {
+
+
+        int picw = image.getWidth();
+        int pich = image.getHeight();
+
+        /* Create HSV array from bitmap */
+        int[] pix = new int[picw * pich];
+        image.getPixels(pix, 0, picw, 0, 0, picw, pich);
+        float[] hueArray = new float[picw * pich];
+        for(int i = 0; i < picw * pich; i++){
+            float[] hsv = new float[3];
+            Color.RGBToHSV(Color.red(pix[i]),Color.green(pix[i]),Color.blue(pix[i]), hsv);
+            hueArray[i] = hsv[0];
+        }
+
+        int totalHue = 0;
+        int aantal = 0;
+
+        int[] colorsOfCircles = new int[circles.length];
+
+        /* Loop through all circles. */
+        for (int i = 0; i < circles.length; i++) {
+
+            /* for each circle calculate all the pixels within */
+            for(float x = -circles[i][2]; x <= circles[i][2]; ++x) {
+                for (float y = -circles[i][2]; y <= circles[i][2]; ++y) {
+                    if (x * x + y * y <= circles[i][2] * circles[i][2]) {
+
+                        totalHue += hueArray[calculateInt((double) (x + circles[i][0]), (double) (y + circles[i][1]))];
+                        aantal++;
+
+                    }
+                }
+            }
+
+            /* Calculate mean color */
+            colorsOfCircles[i] = totalHue/aantal;
+
+            Log.d("COLOR", "Cirkel " + i + ": " + colorsOfCircles[i]);
+
+            totalHue = 0;
+            aantal = 0;
+
+        }
+
+
     }
 
     /* calculate the mean */

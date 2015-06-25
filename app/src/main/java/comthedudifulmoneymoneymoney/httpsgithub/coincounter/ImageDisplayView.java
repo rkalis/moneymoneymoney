@@ -54,7 +54,7 @@ public class ImageDisplayView extends View implements ImageListener {
 
         CircleDetection CD = new CircleDetection(this.currentImage);
         CD.DetectCircles();
-        CD.ColorDetetion();
+        //CD.HSVColorDetection();
         CD.ValueCircles_by_radius();
         CD.Totaal();
         //MainActivity.text.setText("Totaal: " + String.format("%.2f", CD.totaal));
