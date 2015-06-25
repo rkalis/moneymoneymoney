@@ -17,7 +17,7 @@ import static org.opencv.imgproc.Imgproc.medianBlur;
 /**
  * Created by chronos on 20-6-15.
  */
-public class CircleDetection {
+public class CircleDetection implements Runnable {
 
     private static final String TAG = "CD";
 
@@ -79,7 +79,11 @@ public class CircleDetection {
             1.0*/};
 
     // Contructors
-    CircleDetection() {}
+    CircleDetection(){}
+
+    CircleDetection(Bitmap image_input) {
+        this.image = image_input;
+    }
 
     //Methods
 
@@ -314,5 +318,12 @@ public class CircleDetection {
         }
         this.totaal = totaal_cur;
         Log.i(TAG, "Totaal:" + this.totaal);
+    }
+
+    @Override
+    public void run() {
+            this.DetectCircles();
+            this.ValueCircles_by_radius();
+            this.Totaal();
     }
 }
