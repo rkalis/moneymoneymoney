@@ -44,8 +44,6 @@ public class MainActivity extends ActionBarActivity{
     private static final int CAMERA_REQUEST = 1888;
     private static int RESULT_LOAD_IMAGE = 1;
     private ImageDisplayView view;
-    private Uri imageUri;
-    private Bitmap bmp;
     public static TextView text;
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override

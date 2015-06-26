@@ -13,7 +13,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import static org.opencv.imgproc.Imgproc.GaussianBlur;
-import static org.opencv.imgproc.Imgproc.medianBlur;
 
 /**
  * Created by chronos on 20-6-15.
