@@ -492,17 +492,17 @@ public class CircleDetection implements Runnable {
             center.y = circle[1];
 
             if (this.circle_value[i] == 0.05f)
-                Core.putText(imgMat, "5 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "5 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.10f)
-                Core.putText(imgMat, "10 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "10 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.20f)
-                Core.putText(imgMat, "20 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "20 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.50f)
-                Core.putText(imgMat, "50 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "50 cent", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 1.00f)
-                Core.putText(imgMat, "1 euro" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "1 euro", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 2.00f)
-                Core.putText(imgMat, "2 euro" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "2 euro", center, 3, 1, new Scalar(255, 0, 0, 255), 3);
 
             Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
 
