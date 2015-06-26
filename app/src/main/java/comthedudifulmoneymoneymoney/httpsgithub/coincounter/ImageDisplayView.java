@@ -107,7 +107,7 @@ public class ImageDisplayView extends View implements ImageListener {
 
             // Teken meest recente cirkels + totaal op frame
             CD_done.DrawCircles();
-            MainActivity.text.setText("Totaal: " + String.format("%.2f", CD_done.totaal));
+            MainActivity.text.setText("Totaal: \u20ac" + String.format("%.2f", CD_done.totaal));
 
             // Pas canvas matrix aan
             matrix.postRotate(90);

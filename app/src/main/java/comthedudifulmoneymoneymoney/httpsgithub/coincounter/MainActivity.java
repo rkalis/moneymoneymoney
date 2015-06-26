@@ -92,19 +92,6 @@ public class MainActivity extends ActionBarActivity{
     }
 
     private void loadButtons() {
-        Button buttonLoadImage = (Button) findViewById(R.id.image_button);
-        buttonLoadImage.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                Intent i = new Intent(
-                        Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
-            }
-        });
-
         Button cameraButton = (Button) this.findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,22 +114,7 @@ public class MainActivity extends ActionBarActivity{
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bitmap image;
-
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            image = BitmapFactory.decodeFile(picturePath);
-            view.onImage(image);
-        } else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             cis.setOnImageListener(view);
         }
 
