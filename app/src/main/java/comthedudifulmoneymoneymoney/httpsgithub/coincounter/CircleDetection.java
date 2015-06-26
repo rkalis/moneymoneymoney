@@ -85,7 +85,7 @@ public class CircleDetection implements Runnable {
             0.929411764706f,
             1.04705882353f,
             1.14117647059f,
-            //1.09411764706f,euro (ColorDetection)
+            1.09411764706f,
             1.21176470588f};
 
     final float[] inverse_euro = {//0.913978494624f,
@@ -213,12 +213,15 @@ public class CircleDetection implements Runnable {
                                 case 2:
                                     currentvote = 3;
                                     break;
+                                case 4:
+                                    currentvote = 4;
+                                    break;
                                 case 3:
                                     currentvote = 5;
                                     break;
                             }
                         }
-                        // Als de andere munt (de deler) 1 euro is
+                        /*// Als de andere munt (de deler) 1 euro is
                         else if(circle_value[j] == 1.00f) {
 
                             int index = 0;
@@ -250,7 +253,7 @@ public class CircleDetection implements Runnable {
                                     currentvote = 5;
                                     break;
                             }
-                        }
+                        } */
                         // Als de deler 10ct, 20ct, 50ct of 2 euro is.
                         else {
 
@@ -289,6 +292,18 @@ public class CircleDetection implements Runnable {
                                 if (current_diff < lowest_diff) {
                                     lowest_diff = current_diff;
                                     currentvote = 3;
+                                }
+                            }
+
+                            for (int a = 0; a < this.euro.length; a++) {
+
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.euro[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    lowest_diff = current_diff;
+                                    currentvote = 4;
                                 }
                             }
 
@@ -426,7 +441,7 @@ public class CircleDetection implements Runnable {
 
             /* try to see which value is appropriate for the coin */
             if (sd_array[i][3] < 25 && sd_array[i][3] > 0) this.circle_value[i] = 0.05f;
-            else if (sd_array[i][4] < 50 && sd_array[i][6] >= 3) this.circle_value[i] = 1.00f;
+            //else if (sd_array[i][4] < 50 && sd_array[i][6] >= 3) this.circle_value[i] = 1.00f;
             //else if (sd_array[i][4] < 60 && sd_array[i][6] >= 2) this.circle_value[i] = 2.00f;
             else this.circle_value[i] = 0.10f;
 
