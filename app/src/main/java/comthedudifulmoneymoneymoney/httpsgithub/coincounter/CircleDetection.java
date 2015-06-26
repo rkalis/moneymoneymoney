@@ -37,7 +37,7 @@ public class CircleDetection implements Runnable {
     // Totaal waarde munten
     float totaal = 0;
 
-    // Vaste Verhoudingen tussen diameters van munten/5ct/10ct/20ct/50ct/1e/2e
+    // Vaste Verhoudingen tussen diameters van munt/5ct/10ct/20ct/50ct/1e/2e
     final float[] vijfcent = {//1.0,
             1.07594936709f,
             0.955056179775f,
@@ -79,6 +79,21 @@ public class CircleDetection implements Runnable {
             1.0618556701f,
             1.10752688172f/*,
             1.0*/};
+
+    final float[] inverse_vijfcent = {
+            //1.0, vijfcent (ColorDetection)
+            0.929411764706f,
+            1.04705882353f,
+            1.14117647059f,
+            //1.09411764706f,euro (ColorDetection)
+            1.21176470588f};
+
+    final float[] inverse_euro = {//0.913978494624f,
+            0.849462365591f,
+            0.956989247312f,
+            1.04301075269f,
+            //1.0,
+            1.10752688172f};
 
     // Contructors
     CircleDetection(){}
@@ -146,13 +161,14 @@ public class CircleDetection implements Runnable {
         // Loop door circles die een waarde moeten krijgen
         for (int i = 0; i < circles.length; i++) {
 
-            // Als de waarde van de cirkel nog niet bepaald is
-            if (this.circle_value[i] == 0.0f) {
+            // Als de waarde van de cirkel nog niet bepaald is (géén 1 euro of 5 cent, zie ColorDet)
+            if (this.circle_value[i] == 0.10f) {
 
                 // Bepaal waarde cirkel op basis van "voting" dmv vergelijken diameters
                 int[] votes = new int[6];
                 float lowest_diff, current_diff;
                 int currentvote;
+                int factor = 1;
 
                 lowest_diff = 10.0f;
                 currentvote = 0;
@@ -161,90 +177,141 @@ public class CircleDetection implements Runnable {
                 // waarschijnlijk bent volgens de deling met hun diameter
                 for (int j = 0; j < this.circles.length; j++) {
 
-
+                    factor = 1;
 
                     // Niet vergelijken met zichzelf
                     if (j != i) {
 
-                        for (int a = 0; a < this.vijfcent.length; a++) {
+                        // Als de andere munt (de deler) 5 cent is
+                        if(circle_value[j] == 0.05f) {
 
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.vijfcent[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
+                            int index = 0;
+                            factor = 2;
 
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 0;
+                            for (int a = 0; a < this.inverse_vijfcent.length; a++) {
+
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.inverse_vijfcent[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    index = a;
+                                    lowest_diff = current_diff;
+                                }
+                            }
+
+                            switch (index) {
+                                case 0:
+                                    currentvote = 1;
+                                    break;
+                                case 1:
+                                    currentvote = 2;
+                                    break;
+                                case 2:
+                                    currentvote = 3;
+                                    break;
+                                case 3:
+                                    currentvote = 5;
+                                    break;
                             }
                         }
+                        // Als de andere munt (de deler) 1 euro is
+                        else if(circle_value[j] == 1.00f) {
 
-                        // Loop door mogelijke diameterverhoudingen
-                        for (int a = 0; a < this.tiencent.length; a++) {
+                            int index = 0;
+                            factor = 2;
 
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.tiencent[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
+                            for (int a = 0; a < this.inverse_euro.length; a++) {
 
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 1;
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.inverse_euro[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    index = a;
+                                    lowest_diff = current_diff;
+                                }
+                            }
+
+                            switch (index) {
+                                case 0:
+                                    currentvote = 1;
+                                    break;
+                                case 1:
+                                    currentvote = 2;
+                                    break;
+                                case 2:
+                                    currentvote = 3;
+                                    break;
+                                case 3:
+                                    currentvote = 5;
+                                    break;
                             }
                         }
+                        // Als de deler 10ct, 20ct, 50ct of 2 euro is.
+                        else {
 
-                        for (int a = 0; a < this.twintigcent.length; a++) {
+                            factor = 1;
 
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.twintigcent[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
+                            for (int a = 0; a < this.tiencent.length; a++) {
 
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 2;
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.tiencent[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    lowest_diff = current_diff;
+                                    currentvote = 1;
+                                }
+                            }
+
+                            for (int a = 0; a < this.twintigcent.length; a++) {
+
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.twintigcent[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    lowest_diff = current_diff;
+                                    currentvote = 2;
+                                }
+                            }
+
+                            for (int a = 0; a < this.vijftigcent.length; a++) {
+
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.vijftigcent[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    lowest_diff = current_diff;
+                                    currentvote = 3;
+                                }
+                            }
+
+                            for (int a = 0; a < this.tweeeuro.length; a++) {
+
+                                // Als de diameter deling significant lijkt op die van vaste verhouding
+                                current_diff = Math.abs(this.tweeeuro[a] - (this.circles[i][2]
+                                        / this.circles[j][2]));
+
+                                if (current_diff < lowest_diff) {
+                                    lowest_diff = current_diff;
+                                    currentvote = 5;
+                                }
+                            }
+
+                            // Filter deling met delzelfde munt
+                            if(Math.abs(1.0f - (this.circles[i][2]
+                                    / this.circles[j][2])) < lowest_diff) {
+                                lowest_diff = 10.0f;
                             }
                         }
-
-                        for (int a = 0; a < this.vijftigcent.length; a++) {
-
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.vijftigcent[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
-
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 3;
-                            }
-                        }
-
-                        for (int a = 0; a < this.euro.length; a++) {
-
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.euro[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
-
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 4;
-                            }
-                        }
-
-                        for (int a = 0; a < this.tweeeuro.length; a++) {
-
-                            // Als de diameter deling significant lijkt op die van vaste verhouding
-                            current_diff = Math.abs(this.tweeeuro[a] - (this.circles[i][2]
-                                    / this.circles[j][2]));
-
-                            if (current_diff < lowest_diff) {
-                                lowest_diff = current_diff;
-                                currentvote = 5;
-                            }
-                        }
-
-
                     }
                 }
 
                 if (lowest_diff < 9.0) {
-                    votes[currentvote] += 1;
+                    votes[currentvote] += 1*factor;
                 }
 
                 // Bepaal welke munt het is op basis van de votes
@@ -258,26 +325,28 @@ public class CircleDetection implements Runnable {
                 }
 
 
-                // Geef waarde aan de munt
-                switch (munt) {
-                    case 0:
-                        this.circle_value[i] = 0.05f;
-                        break;
-                    case 1:
-                        this.circle_value[i] = 0.10f;
-                        break;
-                    case 2:
-                        this.circle_value[i] = 0.20f;
-                        break;
-                    case 3:
-                        this.circle_value[i] = 0.50f;
-                        break;
-                    case 4:
-                        this.circle_value[i] = 1.00f;
-                        break;
-                    case 5:
-                        this.circle_value[i] = 2.00f;
-                        break;
+                // Geef waarde aan de munt als er tenminste 1 valide stem was
+                if (max > 0) {
+                    switch (munt) {
+                        case 0:
+                            this.circle_value[i] = 0.05f;
+                            break;
+                        case 1:
+                            this.circle_value[i] = 0.10f;
+                            break;
+                        case 2:
+                            this.circle_value[i] = 0.20f;
+                            break;
+                        case 3:
+                            this.circle_value[i] = 0.50f;
+                            break;
+                        case 4:
+                            this.circle_value[i] = 1.00f;
+                            break;
+                        case 5:
+                            this.circle_value[i] = 2.00f;
+                            break;
+                    }
                 }
             }
         }
