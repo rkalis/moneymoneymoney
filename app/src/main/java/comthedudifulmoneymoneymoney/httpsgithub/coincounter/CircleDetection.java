@@ -222,7 +222,7 @@ public class CircleDetection implements Runnable {
                         else if(circle_value[j] == 1.00f) {
 
                             int index = 0;
-                            factor = 2;
+                            factor = 1;
 
                             for (int a = 0; a < this.inverse_euro.length; a++) {
 
@@ -427,7 +427,7 @@ public class CircleDetection implements Runnable {
             /* try to see which value is appropriate for the coin */
             if (sd_array[i][3] < 25 && sd_array[i][3] > 0) this.circle_value[i] = 0.05f;
             else if (sd_array[i][4] < 50 && sd_array[i][6] >= 3) this.circle_value[i] = 1.00f;
-            else if (sd_array[i][4] < 60 && sd_array[i][6] >= 2) this.circle_value[i] = 2.00f;
+            //else if (sd_array[i][4] < 60 && sd_array[i][6] >= 2) this.circle_value[i] = 2.00f;
             else this.circle_value[i] = 0.10f;
 
         }

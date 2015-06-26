@@ -87,12 +87,13 @@ public class MainActivity extends ActionBarActivity{
             image = savedInstanceState.getParcelable("bitmap");
             view.onImage(image);
         }
+        cis.setOnImageListener(view);
 
 
     }
 
     private void loadButtons() {
-        Button cameraButton = (Button) this.findViewById(R.id.camera_button);
+        /*Button cameraButton = (Button) this.findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,13 +105,13 @@ public class MainActivity extends ActionBarActivity{
                     return;
                 }
 
-                /* Set camera as active source: */
+                /* Set camera as active source:
                 ImageDisplayView idv = (ImageDisplayView)findViewById(R.id.image_display_view);
                 if (idv.getImageSource() != MainActivity.this.cis) {
                     idv.setImageSource(MainActivity.this.cis);
                 }
             }
-        });
+        }); */
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
