@@ -177,6 +177,9 @@ public class CircleDetection implements Runnable {
                 // waarschijnlijk bent volgens de deling met hun diameter
                 for (int j = 0; j < this.circles.length; j++) {
 
+                    lowest_diff = 10.0f;
+                    currentvote = 0;
+
                     factor = 1;
 
                     // Niet vergelijken met zichzelf
