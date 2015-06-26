@@ -352,7 +352,7 @@ public class CircleDetection implements Runnable {
         }
     }
 
-
+    /* function that will try to detect the value of each coin by color */
     public void ColorDetection() {
         int picw = image.getWidth();
         int pich = image.getHeight();
@@ -379,9 +379,11 @@ public class CircleDetection implements Runnable {
             g = 0;
             b = 0;
 
+            /* loop through all pixels of the circle and collect the rgb and hsv values */
             for (int x = -(int)(circles[i][2]); x< (int)(circles[i][2]); x++) {
                 for (int y = -(int)(circles[i][2]); y < (int)(circles[i][2])  ; y++){
                     if (x * x + y * y <= circles[i][2] * circles[i][2]){
+                        /* rgb values */
                         r += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
                                 (double) (circles[i][1]))] >> 16));
                         g += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
@@ -389,10 +391,13 @@ public class CircleDetection implements Runnable {
                         b += (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
                                 (double) (circles[i][1]))] >> 0));
 
+                        /* hsv values */
                         float[] hsv = new float[3];
                         Color.RGBToHSV((0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (circles[i][1]))] >> 16)), (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
-                                (double) (circles[i][1]))] >> 8)), (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
+                                (double) (circles[i][1]))] >> 16)),
+                                (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
+                                (double) (circles[i][1]))] >> 8)),
+                                (0xFF & (pix[calculateInt((double) (x + circles[i][0]),
                                 (double) (circles[i][1]))] >> 0)), hsv);
                         h_array[aantal] = Math.round(hsv[0]);
                         aantal++;
@@ -400,6 +405,8 @@ public class CircleDetection implements Runnable {
                 }
             }
 
+
+            /* put rgb and hsv values in sd_array */
             sd_array[i][0] = (int)(r/aantal);
             sd_array[i][1] = (int)(g/aantal);
             sd_array[i][2] = (int)(b/aantal);
@@ -411,11 +418,13 @@ public class CircleDetection implements Runnable {
             sd_array[i][4] = (int)(hsv[1]*100);
             sd_array[i][5] = (int)(hsv[2]*100);
 
+            /* calculate standard deviation for h-value */
             sd_array[i][6] = (int)calcSd(h_array, aantal);
 
+            /* try to see which value is appropriate for the coin */
             if (sd_array[i][3] < 25 && sd_array[i][3] > 0) this.circle_value[i] = 0.05f;
             else if (sd_array[i][4] < 50 && sd_array[i][6] >= 3) this.circle_value[i] = 1.00f;
-            else if (sd_array[i][4] < 60 || sd_array[i][6] >= 2) this.circle_value[i] = 2.00f;
+            else if (sd_array[i][4] < 60 && sd_array[i][6] >= 2) this.circle_value[i] = 2.00f;
             else this.circle_value[i] = 0.10f;
 
         }
@@ -465,17 +474,17 @@ public class CircleDetection implements Runnable {
             center.y = circle[1];
 
             if (this.circle_value[i] == 0.05f)
-                Core.putText(imgMat, "5 cent" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "5 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.10f)
-                Core.putText(imgMat, "10 cent" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "10 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.20f)
-                Core.putText(imgMat, "20 cent" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "20 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 0.50f)
-                Core.putText(imgMat, "50 cent" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "50 cent" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 1.00f)
-                Core.putText(imgMat, "1 euro" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "1 euro" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
             else if (this.circle_value[i] == 2.00f)
-                Core.putText(imgMat, "2 euro" + " " + Integer.toString(sd_array[i][3]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
+                Core.putText(imgMat, "2 euro" + " " + Integer.toString(sd_array[i][4]) + " " + Integer.toString(sd_array[i][6]), center, 3, 1, new Scalar(255, 0, 0, 255), 3);
 
             Core.circle(imgMat, center, (int) circle[2], new Scalar(0, 0, 0, 0), 3, 8, 0);
 
@@ -485,6 +494,7 @@ public class CircleDetection implements Runnable {
         }
     }
 
+    /* calculate the total value of all the coins */
     public void Totaal() {
         float totaal_cur = 0.0f;
         for (int i = 0; i < circle_value.length; i++) {
